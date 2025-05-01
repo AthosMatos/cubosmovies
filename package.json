@@ -1,0 +1,18 @@
+{
+  "name": "cubosnextnest",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "init-project": "cd web && pnpm install && cd ../ && cd server && pnpm install && cd ../ && cd server && pnpm prisma generate && pnpm prisma db push && cd ../",
+    "dev": "pnpm run --parallel dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "add": "^2.0.6",
+    "pnpm": "^10.10.0",
+    "typescript": "5.7.3"
+  }
+}
