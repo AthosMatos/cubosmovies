@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "init-project": "cd web && pnpm install && cd ../ && cd server && pnpm install && cd ../ && cd server && pnpm prisma generate && pnpm prisma db push && cd ../",
+    "init-project": "cd app && pnpm install && cd ../ && cd server && pnpm install && cd ../ && cd server && pnpm prisma generate && pnpm prisma db push && cd ../",
     "dev": "pnpm run --parallel dev"
   },
   "keywords": [],

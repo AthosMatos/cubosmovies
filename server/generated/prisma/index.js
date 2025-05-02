@@ -155,7 +155,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\athos\\OneDrive\\Desktop\\GitHub\\cuboschallenge\\server\\generated\\prisma",
+      "value": "C:\\Users\\Athos\\Documents\\GitHub\\cubos\\server\\generated\\prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -169,7 +169,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\athos\\OneDrive\\Desktop\\GitHub\\cuboschallenge\\server\\prisma\\schema.prisma",
+    "sourceFilePath": "C:\\Users\\Athos\\Documents\\GitHub\\cubos\\server\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {

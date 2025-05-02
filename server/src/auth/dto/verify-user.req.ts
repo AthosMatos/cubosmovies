@@ -1,7 +1,8 @@
 import { z } from "zod";
 
 export class VerifyUserReq {
-  email: string;
+  email?: string;
+  name?: string;
   password: string;
 }
 

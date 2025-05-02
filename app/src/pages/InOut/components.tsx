@@ -13,6 +13,8 @@ interface InOutWrapperProps {
   isLoading?: boolean;
   error?: string | null;
   reset?: () => void;
+  errorGoMessage: string;
+  errorGoTo?: () => void;
 }
 
 const animProps = {
@@ -32,6 +34,8 @@ export const InOutWrapper = ({
   isLoading,
   error,
   reset,
+  errorGoMessage,
+  errorGoTo,
 }: InOutWrapperProps) => {
   const { headerHeight } = useHeaderContext();
 
@@ -59,13 +63,8 @@ export const InOutWrapper = ({
                 <Button secondary onClick={reset} className="w-fit px-7">
                   Tentar Novamente
                 </Button>
-                <Button
-                  onClick={() => {
-                    window.location.href = "/sign-in";
-                  }}
-                  className="w-fit px-7"
-                >
-                  Fazer Login
+                <Button onClick={errorGoTo} className="w-fit px-7">
+                  {errorGoMessage}
                 </Button>
               </div>
             </motion.div>

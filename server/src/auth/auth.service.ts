@@ -4,7 +4,7 @@ import { JwtService } from "@nestjs/jwt";
 
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
-import * as bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import ms from "ms";
 
 import { Request } from "express";
@@ -28,7 +28,15 @@ export class AuthService {
 
   async verifyUser(body: VerifyUserReq) {
     try {
-      const user = await this.userService.get({ email: body.email });
+      const user = await this.userService.get({
+        email: body.email,
+        //name: body.name,
+      });
+      if (!user) {
+        throwToFieldError("Email not found.", ["email"]);
+        return;
+      }
+
       if (!user.password) {
         return;
       }

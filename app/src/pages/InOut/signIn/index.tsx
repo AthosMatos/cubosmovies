@@ -4,6 +4,8 @@ import { useTRPC } from "../../../trpc/utils";
 import { Input } from "../../components/Input";
 import { PageTransitionFade } from "../../components/PageTransitionWrapper";
 import { InOutWrapper } from "../components";
+import { useNavigate } from "react-router";
+import { pagePaths } from "../../../routes/paths";
 
 interface FormData {
   name: string | null;
@@ -34,7 +36,7 @@ const SignInPage = () => {
     error,
     reset: resetMutation,
   } = useMutation(trpc.users.create.mutationOptions());
-
+  const navigate = useNavigate();
   const onSubmit = (data: FormData) => {
     const { name, email, password } = data;
     if (!name || !email || !password) {
@@ -44,6 +46,8 @@ const SignInPage = () => {
       name: name,
       email: email,
       password: password,
+    }).then(() => {
+      navigate(pagePaths.logIn, { replace: true });
     });
   };
 
@@ -60,6 +64,7 @@ const SignInPage = () => {
   return (
     <PageTransitionFade className="w-full h-full items-center justify-center flex">
       <InOutWrapper
+        errorGoMessage="Fazer Login"
         error={error?.message}
         isLoading={isPending}
         title="Criar Conta"
@@ -68,6 +73,9 @@ const SignInPage = () => {
         submitLabel="Cadastrar"
         submit={handleSubmit(onSubmit)}
         reset={resetAll}
+        errorGoTo={() => {
+          navigate(pagePaths.logIn, { replace: true });
+        }}
       >
         <Input
           icon="user"

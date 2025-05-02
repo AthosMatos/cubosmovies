@@ -40,6 +40,7 @@ const LoginPage = () => {
   return (
     <PageTransitionFade className="w-full h-full items-center justify-center flex">
       <InOutWrapper
+        errorGoMessage="Fazer Cadastro"
         error={error}
         isLoading={isPending}
         reset={reset}
@@ -48,6 +49,9 @@ const LoginPage = () => {
         pageTitle="Entrar - CUBOS Movies"
         submitLabel="Entrar"
         submit={handleSubmit(onSubmit)}
+        errorGoTo={() => {
+          navigate(pagePaths.signIn, { replace: true });
+        }}
       >
         <Input
           icon="user"

@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from "@nestjs/common";
 import { TRPCError } from "@trpc/server";
-import * as bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { Prisma } from "generated/prisma";
 import { PrismaService } from "src/prisma/prisma.service";
 import { throwToFieldError } from "src/utils/error-handler.utils";
