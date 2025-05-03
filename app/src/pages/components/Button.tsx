@@ -12,10 +12,10 @@ export const Button = (props: ButtonProps) => {
     <motion.button
       whileTap={{ scale: 0.95 }}
       {...(props as any)}
-      className={`p-2 flex text-white items-center bg-linear-65 justify-center font-semibold transition-colors active:bg-white/0 cursor-pointer px-4 hover:bg-white/15 text-sm  rounded-lg overflow-hidden ${
+      className={`p-2 flex text-white items-center justify-center font-semibold transition-colors active:bg-white/0 cursor-pointer px-4 text-sm rounded-lg overflow-hidden ${
         props.secondary
-          ? "from-zinc-700 to-zinc-400"
-          : "from-purple-900 to-pink-400"
+          ? "bg-purple-950/50 hover:bg-purple-950/40"
+          : "dark:bg-purple-600 bg-purple-800 dark:hover:bg-purple-700"
       } ${props.className}`}
     >
       <AnimatePresence initial={false} mode="wait">

@@ -1,12 +1,17 @@
 import { HttpStatus, Injectable } from "@nestjs/common";
 import { TRPCError } from "@trpc/server";
 import bcrypt from "bcryptjs";
-import { Prisma } from "generated/prisma";
+
+import { Prisma } from "@prisma/client";
 import { PrismaService } from "src/prisma/prisma.service";
 import { throwToFieldError } from "src/utils/error-handler.utils";
 import { defaultResponse } from "src/utils/response.utils";
 import { z } from "zod";
-import { userCreateSchema, userUpdateSchema } from "./schemas";
+import {
+  passUpdateWithEmailSchema,
+  userCreateSchema,
+  userUpdateSchema,
+} from "./dto";
 
 @Injectable()
 export class UsersService {
@@ -27,7 +32,7 @@ export class UsersService {
       }
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: "An error occurred while fetching users.",
+        message: "Erro ao buscar usuários.",
         cause: error,
       });
     }
@@ -44,7 +49,7 @@ export class UsersService {
       }
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: "User not found.",
+        message: "Usuário não encontrado.",
         cause: error,
       });
     }
@@ -60,12 +65,12 @@ export class UsersService {
       });
 
       return defaultResponse({
-        message: "User created successfully.",
+        message: "Usuário criado com sucesso.",
         status: HttpStatus.CREATED,
       });
-    } catch (error) {
+    } catch (error: any) {
       if (error?.code === "P2002") {
-        throwToFieldError("Email already in use.", ["email"]);
+        throwToFieldError("Email já cadastrado.", ["email"]);
       }
       throw error;
     }
@@ -85,9 +90,23 @@ export class UsersService {
         },
       });
     } catch (error) {
-      if (error.code === "P2002") {
-        throwToFieldError("Email already in use.", ["email"]);
-      }
+      throw error;
+    }
+  }
+
+  async updatePassFromEmail(input: z.infer<typeof passUpdateWithEmailSchema>) {
+    try {
+      return await this.prismaService.user.update({
+        where: {
+          email: input.email,
+        },
+        data: {
+          password: input.password
+            ? await bcrypt.hash(input.password, 10)
+            : undefined,
+        },
+      });
+    } catch (error) {
       throw error;
     }
   }
@@ -105,7 +124,7 @@ export class UsersService {
       }
       throw new TRPCError({
         code: "NOT_FOUND",
-        message: "User not found.",
+        message: "Usuário não encontrado.",
         cause: error,
       });
     }

@@ -1,5 +1,9 @@
 import { AuthProvider } from "./Auth";
-import { HeaderProvider } from "./headerContext";
+import { DimensionsHelperProvider } from "./DimensionsHelperContext";
 import { ThemeProvider } from "./Theme";
 
-export const AppContext = [ThemeProvider, AuthProvider, HeaderProvider];
+export const AppContext = [
+  ThemeProvider,
+  AuthProvider,
+  DimensionsHelperProvider,
+];

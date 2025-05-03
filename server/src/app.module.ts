@@ -3,6 +3,7 @@ import { ConfigModule } from "@nestjs/config";
 import { ServeStaticModule } from "@nestjs/serve-static";
 import { join } from "path";
 import { AuthModule } from "./auth/auth.module";
+import { GenresModule } from "./genres/genres.module";
 import { MoviesModule } from "./movies/movies.module";
 import { TrpcModule } from "./trpc/trpc.module";
 import { UsersModule } from "./users/users.module";
@@ -18,6 +19,7 @@ import { UsersModule } from "./users/users.module";
     UsersModule,
     MoviesModule,
     AuthModule,
+    GenresModule,
   ],
   controllers: [],
   providers: [],

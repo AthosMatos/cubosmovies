@@ -16,6 +16,7 @@ const LoginPage = () => {
     handleSubmit,
     register,
     formState: { errors },
+    reset: resetForm,
   } = useForm<FormData>({
     mode: "onChange",
     defaultValues: {
@@ -33,24 +34,30 @@ const LoginPage = () => {
     }
     const success = await mutate(data.nameEmail, data.password);
     if (success) {
-      navigate(pagePaths.library, { replace: true });
+      navigate(pagePaths.library.path);
     }
   };
 
   return (
     <PageTransitionFade className="w-full h-full items-center justify-center flex">
       <InOutWrapper
+        forgotPassword={() => {
+          navigate(pagePaths.forgotPass.path);
+        }}
         errorGoMessage="Fazer Cadastro"
         error={error}
         isLoading={isPending}
-        reset={reset}
+        reset={() => {
+          resetForm();
+          reset();
+        }}
         title="Entrar"
         subtitle="Entre com seu nome ou email e senha"
         pageTitle="Entrar - CUBOS Movies"
         submitLabel="Entrar"
         submit={handleSubmit(onSubmit)}
         errorGoTo={() => {
-          navigate(pagePaths.signIn, { replace: true });
+          navigate(pagePaths.signIn.path);
         }}
       >
         <Input

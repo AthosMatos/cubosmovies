@@ -3,11 +3,13 @@ import { FaEye } from "react-icons/fa";
 import { IoIosLock } from "react-icons/io";
 import { IoMail } from "react-icons/io5";
 import { RiSearch2Fill, RiUser3Fill } from "react-icons/ri";
+import { Spinner } from "../suportPages/loading";
 type IconTypes = "password" | "user" | "email" | "search";
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   errors?: string;
   icon?: IconTypes;
+  searching?: boolean;
 }
 
 export const Input = (props: InputProps) => {
@@ -30,11 +32,13 @@ export const Input = (props: InputProps) => {
   const [isFocused, setIsFocused] = useState(false);
 
   return (
-    <div className="flex gap-1 flex-col w-full">
-      <div className="flex w-full justify-between items-center text-black dark:text-white">
-        {label && <label className="font-medium">{label}</label>}
-        {errors && <span className="text-red-500 text-sm">* {errors}</span>}
-      </div>
+    <div className={`flex gap-1 flex-col  ${props.className}`}>
+      {(label || errors) && (
+        <div className="flex w-full justify-between items-center text-black dark:text-white">
+          {label && <label className="font-medium">{label}</label>}
+          {errors && <span className="text-red-500 text-sm">* {errors}</span>}
+        </div>
+      )}
 
       <div
         onFocus={() => setIsFocused(true)}
@@ -51,7 +55,7 @@ export const Input = (props: InputProps) => {
 
         <input
           {...props}
-          className="w-full bg-transparent dark:text-white text-black px-3 outline-none text-base"
+          className={`bg-transparent w-full dark:text-white text-black px-3 outline-none text-base`}
         />
         {props.type === "password" && (
           <FaEye
@@ -66,6 +70,7 @@ export const Input = (props: InputProps) => {
             }}
           />
         )}
+        {props.searching && <Spinner />}
       </div>
     </div>
   );

@@ -1,19 +1,30 @@
 import { motion } from "motion/react";
 import { CgSpinner } from "react-icons/cg";
-import { useHeaderContext } from "../../../context/headerContext";
+import { useDimensionsHelperContext } from "../../../context/DimensionsHelperContext";
 
-const Spinner = motion(CgSpinner);
+const Spin = motion(CgSpinner);
 
-const LoadingPage = () => {
-  const { headerHeight } = useHeaderContext();
+export const Spinner = ({
+  className,
+  animate,
+  exit,
+  initial,
+  transition,
+}: {
+  className?: string;
+  initial?: any;
+  animate?: any;
+  exit?: any;
+  transition?: any;
+}) => {
   return (
-    <div
-      style={{
-        marginBottom: headerHeight /* Compensar o header e manter centrado */,
-      }}
-      className="flex flex-[1] items-center justify-center"
+    <motion.div
+      initial={initial}
+      animate={animate}
+      exit={exit}
+      transition={transition}
     >
-      <Spinner
+      <Spin
         animate={{ rotate: 360 }}
         transition={{
           ease: "anticipate",
@@ -21,8 +32,22 @@ const LoadingPage = () => {
           repeat: Infinity,
           repeatType: "loop",
         }}
-        className="w-16 h-16 text-purple-500"
+        className={className}
       />
+    </motion.div>
+  );
+};
+
+const LoadingPage = () => {
+  const { headerHeight } = useDimensionsHelperContext();
+  return (
+    <div
+      style={{
+        marginBottom: headerHeight /* Compensar o header e manter centrado */,
+      }}
+      className="flex flex-[1] items-center justify-center"
+    >
+      <Spinner className="w-16 h-16 text-purple-500" />
     </div>
   );
 };

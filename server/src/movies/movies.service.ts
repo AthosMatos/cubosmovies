@@ -1,12 +1,13 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { HttpStatus, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import fs from "fs";
-import { Prisma } from "generated/prisma";
-import { join } from "path";
+
+import { Prisma } from "@prisma/client";
+import { defaultResponse } from "src/utils/response.utils";
+import { z } from "zod";
 import { PrismaService } from "../prisma/prisma.service";
-import { normalizeString } from "../utils/format.utils";
+import { MoviePosterSchema } from "./dto";
 
 @Injectable()
 export class MoviesService {
@@ -37,14 +38,13 @@ export class MoviesService {
 
   async create(data: Prisma.MoviesCreateInput) {
     try {
-      const dbres = await this.prismaService.movies.create({
-        data,
+      await this.prismaService.movies.create({
+        data: data,
       });
-      if (dbres) {
-        return dbres;
-      } else {
-        throw new Error("Product not created");
-      }
+      return defaultResponse({
+        message: "Movie created successfully",
+        status: HttpStatus.CREATED,
+      });
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         console.log(error);
@@ -56,89 +56,167 @@ export class MoviesService {
     }
   }
 
-  async getAll({ withGenre = false }: { withGenre?: boolean }) {
-    const prods = await this.prismaService.movies.findMany({
-      include: {
-        genre: withGenre,
+  async getAllPoster(): Promise<z.infer<typeof MoviePosterSchema>[]> {
+    const movies = await this.prismaService.movies.findMany({
+      select: {
+        backdrop: true,
+        genre: true,
+        id: true,
+        poster: true,
+        title: true,
+        vote_average: true,
       },
     });
+    return movies;
+  }
+  async getAll(page: number = 1) {
+    const movies = await this.prismaService.movies.findMany({
+      skip: (page - 1) * 10,
+      take: 10,
+      orderBy: {
+        id: "desc",
+      },
+    });
+
     return Promise.all(
-      prods.map(async (prod) => ({
+      movies.map(async (prod) => ({
         ...prod,
-        images: await this.images(prod.id.toString()),
+      })),
+    );
+  }
+  async search(search: string) {
+    const movies = await this.prismaService.movies.findMany({
+      where: {
+        OR: [
+          {
+            title: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+          {
+            original_title: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+          {
+            subtitle: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+          {
+            synopsis: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+        ],
+      },
+    });
+    if (!movies) {
+      throw new Error("No movies found");
+    }
+    if (movies.length === 0) {
+      return movies;
+    }
+    return Promise.all(
+      movies.map(async (prod) => ({
+        ...prod,
       })),
     );
   }
 
-  async images(movieId: string) {
-    try {
-      const path = join(__dirname.split("\\dist")[0], `public/images/movies/`);
-
-      //check if the files inside the folder have the id bedore the first '-' as the movie id
-      const readfiles = fs.readdirSync(path);
-
-      const files = readfiles.filter((file) => {
-        return file.split("-")[0] === movieId;
-      });
-      if (files.length === 0) {
-        return [];
-      }
-      return files.map(
-        (file) =>
-          `http://${this.configService.getOrThrow("BASE_URL")}:${this.configService.getOrThrow("PORT")}/images/movies/${file}`,
-      );
-    } catch (error) {
-      return [];
+  async searchPosters(search: string) {
+    const movies = await this.prismaService.movies.findMany({
+      where: {
+        OR: [
+          {
+            title: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+          {
+            original_title: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+          {
+            subtitle: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+          {
+            synopsis: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+        ],
+      },
+      select: {
+        backdrop: true,
+        genre: true,
+        id: true,
+        poster: true,
+        title: true,
+        vote_average: true,
+      },
+    });
+    if (!movies) {
+      throw new Error("No movies found");
     }
-  }
-
-  private async getImages(imagesNames: string[]) {
-    try {
-      const path = join(__dirname.split("\\dist")[0], `public/images/movies/`);
-
-      //check if the files inside the folder have the id bedore the first '-' as the movie id
-      const readfiles = fs.readdirSync(path);
-      const normalizedImages = imagesNames.map((img) => normalizeString(img));
-
-      const files = readfiles.filter((file) => {
-        return normalizedImages.includes(
-          normalizeString(file.split("-").slice(1).join("-")),
-        );
-      });
-      if (files.length === 0) {
-        return [];
-      }
-      return files.map(
-        (file) =>
-          `http://${this.configService.getOrThrow("BASE_URL")}:${this.configService.getOrThrow("PORT")}/images/movies/${file}`,
-      );
-    } catch (error) {
-      return [];
+    if (movies.length === 0) {
+      return movies;
     }
-  }
-
-  async getById({
-    id,
-    withGenre = false,
-  }: {
-    id?: number;
-    withGenre?: boolean;
-  }) {
-    try {
-      const prod = await this.prismaService.movies.findUniqueOrThrow({
-        where: {
-          id,
-        },
-        include: {
-          genre: withGenre,
-        },
-      });
-      return {
+    return Promise.all(
+      movies.map(async (prod) => ({
         ...prod,
-        images: await this.images(prod.id.toString()),
-      };
-    } catch (error) {
-      throw new NotFoundException("Product not found");
-    }
+      })),
+    );
+  }
+
+  async getPageTotal() {
+    const movies = await this.prismaService.movies.findMany();
+    const total = movies.length;
+    const pageTotal = Math.ceil(total / 10);
+    return pageTotal;
+  }
+
+  async get(id: number) {
+    const movie = await this.prismaService.movies.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    return movie;
+  }
+
+  async exists(id: number) {
+    const movie = await this.prismaService.movies.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    return !!movie;
+  }
+
+  async existsByName(name: string) {
+    const movie = await this.prismaService.movies.findFirst({
+      where: {
+        title: {
+          contains: name,
+          mode: "insensitive",
+        },
+      },
+    });
+
+    return !!movie;
   }
 }

@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
-import { PrismaClient } from "generated/prisma";
+import { PrismaClient } from "@prisma/client";
 
 //npx prisma db push for unique constraint
 //yarn prisma generate to generate prisma client

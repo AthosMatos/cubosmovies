@@ -41,7 +41,14 @@ export function TRPCContext({ children }: TRPCContextProps) {
       links: [
         httpBatchLink({
           url: `http://localhost:${import.meta.env.VITE_SERVER_PORT}/trpc`,
-          transformer: superjson,
+          transformer: superjson as any,
+
+          headers() {
+            const token = localStorage.getItem("token");
+            return {
+              bearer: token ? token : undefined,
+            };
+          },
         }),
       ],
     })

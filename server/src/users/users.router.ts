@@ -3,12 +3,13 @@ import { Input, Mutation, Query, Router, UseMiddlewares } from "nestjs-trpc";
 import { AuthMiddleware } from "src/auth/auth.middleware";
 import { z } from "zod";
 import {
+  passUpdateWithEmailSchema,
   userCreateSchema,
   userDeleteSchema,
   userGetSchema,
   userSchema,
   userUpdateSchema,
-} from "./schemas";
+} from "./dto";
 import { UsersService } from "./users.service";
 
 @Router({ alias: "users" })
@@ -42,6 +43,13 @@ export class UsersRouter {
   @Mutation({ input: userUpdateSchema, output: userSchema })
   async update(@Input() input: z.infer<typeof userUpdateSchema>) {
     return this.usersService.update(input);
+  }
+
+  @Mutation({ input: passUpdateWithEmailSchema, output: userSchema })
+  async updatePassWithEmail(
+    @Input() input: z.infer<typeof passUpdateWithEmailSchema>,
+  ) {
+    return this.usersService.updatePassFromEmail(input);
   }
 
   @Mutation({ input: userDeleteSchema, output: userSchema })

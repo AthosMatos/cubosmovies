@@ -1,11 +1,11 @@
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
+import { pagePaths } from "../../../routes/paths";
 import { useTRPC } from "../../../trpc/utils";
 import { Input } from "../../components/Input";
 import { PageTransitionFade } from "../../components/PageTransitionWrapper";
 import { InOutWrapper } from "../components";
-import { useNavigate } from "react-router";
-import { pagePaths } from "../../../routes/paths";
 
 interface FormData {
   name: string | null;
@@ -47,7 +47,7 @@ const SignInPage = () => {
       email: email,
       password: password,
     }).then(() => {
-      navigate(pagePaths.logIn, { replace: true });
+      navigate(pagePaths.logIn.path);
     });
   };
 
@@ -74,13 +74,13 @@ const SignInPage = () => {
         submit={handleSubmit(onSubmit)}
         reset={resetAll}
         errorGoTo={() => {
-          navigate(pagePaths.logIn, { replace: true });
+          navigate(pagePaths.logIn.path);
         }}
       >
         <Input
           icon="user"
           label="Nome"
-          placeholder="Digite seu nome ou email"
+          placeholder="Digite seu nome "
           type="text"
           errors={errors.name?.message}
           {...register("name", {

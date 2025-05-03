@@ -4,10 +4,11 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
-}
+/* 
+generator zod {
+  provider       = "zod-prisma-types"
+
+} */
 
 datasource db {
   provider = "postgresql"
@@ -16,31 +17,31 @@ datasource db {
 
 model User {
   id        Int     @id @default(autoincrement())
-  name      String?
-  email     String?  @unique
-  password  String?
+  name      String
+  email     String  @unique
+  password  String
 }
 
 model Movies {
   id          Int     @id @default(autoincrement())
   title     String
   original_title String
-  subtitle  String?
-  synopsis  String?
+  subtitle  String
+  synopsis  String
   genre MovieGenres[]
-  popularity Float?
-  vote_average Float?
-  vote_count Int?
-  release_date DateTime?
-  duration  Int?
-  situation String?
-  language  String?
-  budget    Float?
-  revenue   Float?
-  profit    Float?
-  poster    String?
-  backdrop  String?
-  trailer   String?
+  popularity Float
+  vote_average Float
+  vote_count Int
+  release_date DateTime
+  duration  Int
+  situation String
+  language  String
+  budget    Float
+  revenue   Float
+  profit    Float
+  poster    String
+  backdrop  String
+  trailer   String
 
 }
 

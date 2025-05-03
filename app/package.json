@@ -24,7 +24,9 @@
     "react-router": "^7.5.3",
     "styled-components": "^6.1.17",
     "superjson": "^1.13.3",
-    "tailwindcss": "^4.1.4"
+    "tailwindcss": "^4.1.4",
+    "use-debounce": "^10.0.4",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",

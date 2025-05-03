@@ -8,7 +8,8 @@ import bcrypt from "bcryptjs";
 import ms from "ms";
 
 import { Request } from "express";
-import { User } from "generated/prisma";
+
+import { User } from "@prisma/client";
 import { UsersService } from "src/users/users.service";
 import { throwToFieldError } from "../utils/error-handler.utils";
 import { VerifyUserReq } from "./dto/verify-user.req";
@@ -32,27 +33,19 @@ export class AuthService {
         email: body.email,
         //name: body.name,
       });
-      if (!user) {
-        throwToFieldError("Email not found.", ["email"]);
-        return;
-      }
-
-      if (!user.password) {
-        return;
-      }
 
       const isPasswordValid = await this.validatePassword(
         body.password,
         user.password,
       );
       if (!isPasswordValid) {
-        throwToFieldError("Invalid password", ["password"]);
+        throwToFieldError("Senha inválida.", ["password"]);
       }
       return user;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
-          throwToFieldError("Email not found.", ["email"]);
+          throwToFieldError("Usuário não encontrado.", ["email"]);
         }
       }
       throw error;

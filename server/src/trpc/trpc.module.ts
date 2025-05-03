@@ -11,13 +11,19 @@ import { AppContext } from "./trpc.context";
       autoSchemaFile: "./src/trpc/@generated",
       transformer: superjson,
       context: AppContext,
+
       errorFormatter: ({ shape, error }) => {
         const isZodError =
           error.code === "BAD_REQUEST" && error.cause instanceof ZodError;
         const fieldErrors = isZodError ? error.cause.flatten().fieldErrors : {};
+        let message = error.message;
+        try {
+          message = JSON.parse(error?.message)[0]?.message;
+        } catch (e) {}
 
         return {
           ...shape,
+          message: message,
           data: {
             code: shape.data.code,
             httpStatus: shape.data.httpStatus,

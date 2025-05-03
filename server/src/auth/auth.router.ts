@@ -1,6 +1,5 @@
-import { HttpStatus, Inject } from "@nestjs/common";
+import { Inject } from "@nestjs/common";
 import { Input, Mutation, Router } from "nestjs-trpc";
-import { defaultResponse } from "src/utils/response.utils";
 import { z } from "zod";
 import { AuthService } from "./auth.service";
 import { VerifyUserReqZod } from "./dto/verify-user.req";
@@ -17,12 +16,6 @@ export class AuthRouter {
   })
   async login(@Input() input: z.infer<typeof VerifyUserReqZod>) {
     const user = await this.authService.verifyUser(input);
-    if (!user) {
-      return defaultResponse({
-        message: "Invalid credentials",
-        status: HttpStatus.UNAUTHORIZED,
-      });
-    }
     return this.authService.login(user);
   }
 

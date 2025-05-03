@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import { MdError } from "react-icons/md";
-import { useHeaderContext } from "../../context/headerContext";
+import { useDimensionsHelperContext } from "../../context/DimensionsHelperContext";
 import { Button } from "../components/Button";
 import { PageTransitionFade } from "../components/PageTransitionWrapper";
 interface InOutWrapperProps {
@@ -15,6 +15,7 @@ interface InOutWrapperProps {
   reset?: () => void;
   errorGoMessage: string;
   errorGoTo?: () => void;
+  forgotPassword?: () => void;
 }
 
 const animProps = {
@@ -36,8 +37,9 @@ export const InOutWrapper = ({
   reset,
   errorGoMessage,
   errorGoTo,
+  forgotPassword,
 }: InOutWrapperProps) => {
-  const { headerHeight } = useHeaderContext();
+  const { headerHeight } = useDimensionsHelperContext();
 
   return (
     <PageTransitionFade className="w-full h-full items-center justify-center flex">
@@ -84,7 +86,22 @@ export const InOutWrapper = ({
                 </span>
               </p>
               <div className="flex flex-col gap-2 w-full">{children}</div>
-              <Button loading={isLoading}>{submitLabel}</Button>
+              <div
+                className={`flex w-full ${
+                  forgotPassword ? "justify-between " : "justify-end"
+                } items-center`}
+              >
+                {forgotPassword && (
+                  <label
+                    className="text-sm font-medium transition-colors text-purple-500 hover:text-purple-400 hover:dark:text-purple-600 cursor-pointer"
+                    onClick={forgotPassword}
+                  >
+                    Esqueci minha senha
+                  </label>
+                )}
+
+                <Button loading={isLoading}>{submitLabel}</Button>
+              </div>
             </motion.form>
           )}
         </AnimatePresence>

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export class VerifyUserReq {
+export interface VerifyUserReq {
   email?: string;
   name?: string;
   password: string;
