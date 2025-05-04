@@ -1,10 +1,10 @@
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
+import { InOut } from "..";
 import { useAuth } from "../../../context/Auth";
 import { pagePaths } from "../../../routes/paths";
 import { Input } from "../../components/Input";
 import { PageTransitionScale } from "../../components/PageTransitionWrapper";
-import { InOutWrapper } from "../components";
 
 interface FormData {
   nameEmail: string | null;
@@ -40,7 +40,7 @@ const LoginPage = () => {
 
   return (
     <PageTransitionScale className="w-full h-full items-center justify-center flex">
-      <InOutWrapper
+      <InOut
         forgotPassword={() => {
           navigate(pagePaths.forgotPass.path);
         }}
@@ -85,7 +85,7 @@ const LoginPage = () => {
             }, */
           })}
         />
-      </InOutWrapper>
+      </InOut>
     </PageTransitionScale>
   );
 };

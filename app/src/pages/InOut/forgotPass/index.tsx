@@ -1,11 +1,11 @@
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
+import { InOut } from "..";
 import { pagePaths } from "../../../routes/paths";
 import { useTRPC } from "../../../trpc/utils";
 import { Input } from "../../components/Input";
 import { PageTransitionScale } from "../../components/PageTransitionWrapper";
-import { InOutWrapper } from "../components";
 
 interface FormData {
   email: string | null;
@@ -59,7 +59,7 @@ const ForgotPassPage = () => {
 
   return (
     <PageTransitionScale className="w-full h-full items-center justify-center flex">
-      <InOutWrapper
+      <InOut
         errorGoMessage="Fazer Login"
         error={error?.message}
         isLoading={isPending}
@@ -124,7 +124,7 @@ const ForgotPassPage = () => {
             },
           })}
         />
-      </InOutWrapper>
+      </InOut>
     </PageTransitionScale>
   );
 };

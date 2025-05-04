@@ -1,9 +1,9 @@
 -- CreateTable
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
-    "name" TEXT,
-    "email" TEXT,
-    "password" TEXT,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -13,18 +13,21 @@ CREATE TABLE "Movies" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
     "original_title" TEXT NOT NULL,
-    "subtitle" TEXT,
-    "synopsis" TEXT,
-    "popularity" DOUBLE PRECISION,
-    "vote_average" DOUBLE PRECISION,
-    "vote_count" INTEGER,
-    "release_date" TIMESTAMP(3),
-    "duration" INTEGER,
-    "situation" TEXT,
-    "language" TEXT,
-    "budget" DOUBLE PRECISION,
-    "revenue" DOUBLE PRECISION,
-    "profit" DOUBLE PRECISION,
+    "subtitle" TEXT NOT NULL,
+    "synopsis" TEXT NOT NULL,
+    "popularity" DOUBLE PRECISION NOT NULL,
+    "vote_average" DOUBLE PRECISION NOT NULL,
+    "vote_count" INTEGER NOT NULL,
+    "release_date" TIMESTAMP(3) NOT NULL,
+    "duration" INTEGER NOT NULL,
+    "situation" TEXT NOT NULL,
+    "language" TEXT NOT NULL,
+    "budget" DOUBLE PRECISION NOT NULL,
+    "revenue" DOUBLE PRECISION NOT NULL,
+    "profit" DOUBLE PRECISION NOT NULL,
+    "poster" TEXT NOT NULL,
+    "backdrop" TEXT NOT NULL,
+    "trailer" TEXT NOT NULL,
 
     CONSTRAINT "Movies_pkey" PRIMARY KEY ("id")
 );

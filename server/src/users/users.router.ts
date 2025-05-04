@@ -13,18 +13,19 @@ import {
 import { UsersService } from "./users.service";
 
 @Router({ alias: "users" })
-@UseMiddlewares(AuthMiddleware)
 export class UsersRouter {
   constructor(
     @Inject(UsersService) private readonly usersService: UsersService,
   ) {}
 
   @Query({ output: z.array(userSchema) })
+  @UseMiddlewares(AuthMiddleware)
   async getAll() {
     return this.usersService.getAll();
   }
 
   @Query({ input: userGetSchema, output: userSchema })
+  @UseMiddlewares(AuthMiddleware)
   async get(@Input() input: z.infer<typeof userGetSchema>) {
     return this.usersService.get(input);
   }
@@ -41,6 +42,7 @@ export class UsersRouter {
   }
 
   @Mutation({ input: userUpdateSchema, output: userSchema })
+  @UseMiddlewares(AuthMiddleware)
   async update(@Input() input: z.infer<typeof userUpdateSchema>) {
     return this.usersService.update(input);
   }
@@ -53,6 +55,7 @@ export class UsersRouter {
   }
 
   @Mutation({ input: userDeleteSchema, output: userSchema })
+  @UseMiddlewares(AuthMiddleware)
   async delete(@Input() input: z.infer<typeof userDeleteSchema>) {
     return this.usersService.delete(input);
   }

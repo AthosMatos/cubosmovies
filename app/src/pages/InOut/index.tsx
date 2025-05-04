@@ -25,7 +25,7 @@ const animProps = {
   transition: { duration: 0.4, ease: "anticipate" },
 };
 
-export const InOutWrapper = ({
+export const InOut = ({
   children,
   submitLabel,
   submit,
@@ -65,7 +65,13 @@ export const InOutWrapper = ({
                 <Button secondary onClick={reset} className="w-fit px-7">
                   Tentar Novamente
                 </Button>
-                <Button onClick={errorGoTo} className="w-fit px-7">
+                <Button
+                  onClick={() => {
+                    reset && reset();
+                    errorGoTo && errorGoTo();
+                  }}
+                  className="w-fit px-7"
+                >
                   {errorGoMessage}
                 </Button>
               </div>
