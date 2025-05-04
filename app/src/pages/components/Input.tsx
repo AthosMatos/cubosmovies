@@ -1,15 +1,16 @@
 import { useState } from "react";
-import { FaEye } from "react-icons/fa";
+import { FaClock, FaEye } from "react-icons/fa";
 import { IoIosLock } from "react-icons/io";
 import { IoMail } from "react-icons/io5";
 import { RiSearch2Fill, RiUser3Fill } from "react-icons/ri";
 import { Spinner } from "../suportPages/loading";
-type IconTypes = "password" | "user" | "email" | "search";
+type IconTypes = "password" | "user" | "email" | "search" | "time";
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   errors?: string;
   icon?: IconTypes;
   searching?: boolean;
+  afterLabel?: string;
 }
 
 export const Input = (props: InputProps) => {
@@ -25,6 +26,8 @@ export const Input = (props: InputProps) => {
         return <IoMail />;
       case "search":
         return <RiSearch2Fill />;
+      case "time":
+        return <FaClock />;
       default:
         return null;
     }
@@ -57,6 +60,9 @@ export const Input = (props: InputProps) => {
           {...props}
           className={`bg-transparent w-full dark:text-white text-black px-3 outline-none text-base`}
         />
+        {props.afterLabel && (
+          <label className="font-medium text-sm">{props.afterLabel}</label>
+        )}
         {props.type === "password" && (
           <FaEye
             className="text-zinc-500 text-xl cursor-pointer mr-1"

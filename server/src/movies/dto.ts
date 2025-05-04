@@ -28,6 +28,12 @@ export const MoviesSchema = z.object({
     )
     .optional(),
 });
+
+export const ResponseSchema = z.object({
+  status: z.number(),
+  message: z.string(),
+});
+
 export const MoviesCreateInputSchema = z.object({
   id: z.number().optional(),
   title: z.string(),
@@ -61,30 +67,77 @@ export const MoviesCreateInputSchema = z.object({
   trailer: z.string(),
 });
 
-/* 
-{
-    id: number;
-    title: string;
-    vote_average: number;
-    poster: string;
-    backdrop: string;
-    genre: {
-        id: number;
-        name: string;
-    }[];
-}
-*/
+export const MoviesUpdateSchema = z.object({
+  title: z.string().optional(),
+  original_title: z.string().optional(),
+  subtitle: z.string().optional(),
+  synopsis: z.string().optional(),
+  genre: z
+    .object({
+      connect: z.array(
+        z.object({
+          id: z.number(),
+        }),
+      ),
+      create: z.array(
+        z.object({
+          name: z.string(),
+        }),
+      ),
+    })
+    .optional(),
+  popularity: z.number().optional(),
+  vote_average: z.number().optional(),
+  vote_count: z.number().optional(),
+  release_date: z.coerce.date().optional(),
+  duration: z.number().optional(),
+  situation: z.string().optional(),
+  language: z.string().optional(),
+  budget: z.number().optional(),
+  revenue: z.number().optional(),
+  profit: z.number().optional(),
+  poster: z.string().optional(),
+  backdrop: z.string().optional(),
+  trailer: z.string().optional(),
+});
 
-export const MoviePosterSchema = z.object({
+export const MoviesUpdateInputSchema = z.object({
   id: z.number(),
-  title: z.string(),
-  poster: z.string(),
-  backdrop: z.string(),
-  vote_average: z.number(),
-  genre: z.array(
-    z.object({
-      id: z.number(),
-      name: z.string(),
-    }),
-  ),
+  data: MoviesUpdateSchema,
+});
+
+export const GetAllMoviesSchema = z.object({
+  page: z.number().optional(),
+
+  DurationMin: z.preprocess((val) => {
+    const num = Number(val);
+    return isNaN(num) ? undefined : num;
+  }, z.number().optional()),
+
+  DurationMax: z.preprocess((val) => {
+    const num = Number(val);
+    return isNaN(num) ? undefined : num;
+  }, z.number().optional()),
+
+  DateMin: z.preprocess((val: any) => {
+    if (!val) return undefined;
+    const date = new Date(val);
+    return isNaN(date.getTime()) ? undefined : date;
+  }, z.date().optional()),
+
+  DateMax: z.preprocess((val: any) => {
+    if (!val) return undefined;
+    const date = new Date(val);
+    return isNaN(date.getTime()) ? undefined : date;
+  }, z.date().optional()),
+
+  Genres: z.array(z.number()).optional(),
+});
+
+export const GetMovieSchema = z.number();
+export const GetMovieByNameSchema = z.string();
+
+export const ExistsMovieSchema = z.object({
+  id: z.number().optional(),
+  name: z.string().optional(),
 });

@@ -1,8 +1,8 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "../../../trpc/utils";
 import { MovieDetailsProps } from "../details/interfaces.ts";
 
-export const useMoviesContext = ({ onDelete }: { onDelete?: () => void }) => {
+export const useMovies = ({ onDelete }: { onDelete?: () => void }) => {
   const trpc = useTRPC();
 
   const { mutate: createMovie, isPending: pendingCreate } = useMutation(
@@ -19,10 +19,17 @@ export const useMoviesContext = ({ onDelete }: { onDelete?: () => void }) => {
     trpc.genres.checkIfExists.mutationOptions({})
   );
 
-  const addToLocalList = async (movie: MovieDetailsProps) => {
-    if (!movie) return;
+  const queryClient = useQueryClient();
 
-    const existingMovie = await existsMovie(movie.id);
+  const pageTotalKey = trpc.movies.getPageTotal.queryKey();
+
+  const toogleToLocalList = async (movie?: MovieDetailsProps) => {
+    if (!movie) return;
+    queryClient.invalidateQueries({ queryKey: pageTotalKey });
+    const existingMovie = await existsMovie({
+      id: movie.id,
+      name: movie.title,
+    });
     if (existingMovie) {
       await deleteMovie(movie.id);
       if (onDelete) onDelete();
@@ -69,7 +76,7 @@ export const useMoviesContext = ({ onDelete }: { onDelete?: () => void }) => {
   };
 
   return {
-    addToLocalList,
+    toogleToLocalList,
     pending: pendingCreate || pendingDelete,
   };
 };

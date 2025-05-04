@@ -13,6 +13,14 @@ const LibraryPageContext = createContext({} as LibraryPageContextProps);
 export const libraryHeaderId = "libraryheader";
 export const libraryNavigationId = "librarynavigation";
 
+export interface FilterFormData {
+  DurationMin?: number | null;
+  DurationMax?: number | null;
+  DateMin?: Date | null;
+  DateMax?: Date | null;
+  Genres?: number[];
+}
+
 export const LibraryPageProvider = ({
   children,
 }: {
@@ -21,18 +29,53 @@ export const LibraryPageProvider = ({
   const [movies, setMovies] = useState<MovieDetailsProps[]>([]);
   const [search, setSearch] = useState<string>("");
   const [debouncedSearch] = useDebounce(search, 500);
-  const { spaceBetweenHeaderAndFooter } = useDimensionsHelperContext();
+  const [isTMDBList, setIsTMDBList] = useState<boolean>(false);
+  const [loadedList, setLoadedList] = useState<"local" | "tmdb">("local");
+  const [page, setPage] = useState<number>(1);
   const [libraryHeaderHeight, setLibraryHeaderHeight] = useState<number>(0);
   const [libraryNavigationHeight, setLibraryNavigationHeight] =
     useState<number>(0);
-  const [isTMDBList, setIsTMDBList] = useState<boolean>(false);
-  const [page, setPage] = useState<number>(1);
+  const trpc = useTRPC();
+  const { spaceBetweenHeaderAndFooter } = useDimensionsHelperContext();
+
+  const handleFormSubmit = (data: FilterFormData) => {
+    const { DateMax, DateMin, DurationMax, DurationMin, Genres } = data;
+    if (!DateMax && !DateMin && !DurationMax && !DurationMin) {
+      return;
+    }
+
+    if (isTMDBList) {
+      fillTMDB({
+        page,
+        DateMax,
+        DateMin,
+        DurationMax,
+        DurationMin,
+        Genres: Array.isArray(Genres)
+          ? Genres?.map((g) => parseInt(g.toString()))
+          : undefined,
+      });
+    } else {
+      fillLocalMovies({
+        page,
+        DateMax,
+        DateMin,
+        DurationMax,
+        DurationMin,
+        Genres: Array.isArray(Genres)
+          ? Genres?.map((g) => parseInt(g.toString()))
+          : undefined,
+      });
+    }
+  };
+
   const { mutate: fillTMDB, isPending: pendingTMDB } = useMutation({
     mutationFn: getMovies,
 
     onSuccess: (data) => {
       if (!data) return;
       setMovies(data);
+      setLoadedList("tmdb");
     },
   });
 
@@ -45,7 +88,6 @@ export const LibraryPageProvider = ({
     },
   });
 
-  const trpc = useTRPC();
   const { mutate: fillLocalMovies, isPending: pendingLocalMovies } =
     useMutation(
       trpc.movies.getAll.mutationOptions({
@@ -60,6 +102,7 @@ export const LibraryPageProvider = ({
               };
             })
           );
+          setLoadedList("local");
         },
       })
     );
@@ -80,7 +123,8 @@ export const LibraryPageProvider = ({
         },
       })
     );
-  useEffect(() => {
+
+  const defaultGetMovies = () => {
     if (isTMDBList) {
       if (debouncedSearch.length) {
         searchTMDB(debouncedSearch);
@@ -88,8 +132,12 @@ export const LibraryPageProvider = ({
     } else {
       if (debouncedSearch.length) {
         searchLocalMovies(debouncedSearch);
-      } else fillLocalMovies(page);
+      } else fillLocalMovies({ page });
     }
+  };
+
+  useEffect(() => {
+    defaultGetMovies();
   }, [isTMDBList, page, debouncedSearch]);
 
   useEffect(() => {
@@ -125,7 +173,9 @@ export const LibraryPageProvider = ({
       value={{
         movies,
         setMovies,
-
+        defaultGetMovies,
+        handleFormSubmit,
+        loadedList,
         setSearch,
         isTMDBList,
         setIsTMDBList,

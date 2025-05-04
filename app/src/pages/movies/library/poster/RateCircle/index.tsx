@@ -1,8 +1,11 @@
+import { motion } from "motion/react";
+
 interface RateCircleProps {
   vote_average: number;
   className?: string;
   textClassName?: string;
   porcentClassName?: string;
+  showRateCircle: boolean;
 }
 
 const RateCircle = ({
@@ -10,11 +13,16 @@ const RateCircle = ({
   className,
   porcentClassName,
   textClassName,
+  showRateCircle,
 }: RateCircleProps) => {
   return (
-    <>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: showRateCircle ? 1 : 0 }}
+      className="flex items-center self-center justify-center backdrop-blur-[2px] w-fit rounded-full mt-[30%]"
+    >
       <svg
-        className={`lg:w-44 w-28 aspect-square dark:bg-zinc-950/30 bg-zinc-50/30 rounded-full backdrop-blur-[2px] ${className}`}
+        className={`lg:w-44 w-28 aspect-square dark:bg-zinc-950/30 bg-zinc-50/30 rounded-full  ${className}`}
         viewBox="0 0 36 36"
       >
         <circle
@@ -43,7 +51,7 @@ const RateCircle = ({
         {Math.round(vote_average)}
         <p className={`text-xl ${porcentClassName}`}>%</p>
       </p>
-    </>
+    </motion.div>
   );
 };
 export default RateCircle;

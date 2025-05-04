@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { MdError } from "react-icons/md";
 import { useDimensionsHelperContext } from "../../context/DimensionsHelperContext";
 import { Button } from "../components/Button";
-import { PageTransitionFade } from "../components/PageTransitionWrapper";
+import { PageTransitionScale } from "../components/PageTransitionWrapper";
 interface InOutWrapperProps {
   pageTitle: string;
   title: string;
@@ -42,7 +42,7 @@ export const InOutWrapper = ({
   const { headerHeight } = useDimensionsHelperContext();
 
   return (
-    <PageTransitionFade className="w-full h-full items-center justify-center flex">
+    <PageTransitionScale className="w-full h-full items-center justify-center flex">
       <title>{pageTitle}</title>
       <div
         style={{
@@ -106,6 +106,6 @@ export const InOutWrapper = ({
           )}
         </AnimatePresence>
       </div>
-    </PageTransitionFade>
+    </PageTransitionScale>
   );
 };

@@ -3,12 +3,12 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { FaCheck, FaPlus } from "react-icons/fa";
 import { useNavigate } from "react-router";
-import { pagePaths } from "../../../../../routes/paths";
-import { useTRPC } from "../../../../../trpc/utils";
-import { Spinner } from "../../../../suportPages/loading";
-import { useMoviesContext } from "../../../context";
-import { MovieDetailsProps } from "../../../details/interfaces";
-import { useLibraryPageContext } from "../../context";
+import { pagePaths } from "../../../../routes/paths";
+import { useTRPC } from "../../../../trpc/utils";
+import { Spinner } from "../../../suportPages/loading";
+import { useMovies } from "../../context";
+import { MovieDetailsProps } from "../../details/interfaces";
+import { useLibraryPageContext } from "../context";
 import RateCircle from "./RateCircle";
 import { MoviePostWrapper } from "./styled";
 
@@ -31,22 +31,23 @@ const motionProps = {
 const MoviePoster = (movie: MovieDetailsProps) => {
   const { id, title, poster, backdrop, vote_average, genre } = movie;
   const [showRateCircle, setShowRateCircle] = useState(false);
-  const { isTMDBList } = useLibraryPageContext();
+  const { loadedList } = useLibraryPageContext();
   const trpc = useTRPC();
   const { mutateAsync: existsByName, data: isInLibrary } = useMutation(
     trpc.movies.existsByName.mutationOptions()
   );
 
   const navigate = useNavigate();
-  const { addToLocalList, pending } = useMoviesContext({
-    onDelete: () => {
-      existsByName(movie.title);
-    },
-  });
+  const { toogleToLocalList: addToLocalList, pending: pendingAddOrRemove } =
+    useMovies({
+      onDelete: () => {
+        existsByName(movie.title);
+      },
+    });
 
   useEffect(() => {
     existsByName(movie.title);
-  }, [pending]);
+  }, [pendingAddOrRemove]);
 
   return (
     <MoviePostWrapper
@@ -56,7 +57,7 @@ const MoviePoster = (movie: MovieDetailsProps) => {
       onTouchEnd={() => setShowRateCircle(false)}
       backgroundImage={poster || backdrop || ""}
     >
-      {isTMDBList && (
+      {loadedList == "tmdb" && (
         <div
           onClick={() => {
             //setIsInLibrary((prev) => !prev);
@@ -66,7 +67,7 @@ const MoviePoster = (movie: MovieDetailsProps) => {
           className="absolute z-20 top-0 right-0 m-2 p-3 text-lg bg-zinc-900/60 active:scale-95 border-zinc-600 border rounded-full hover:bg-zinc-900/80 transition-colors duration-200 ease-in-out"
         >
           <AnimatePresence initial={false} mode="wait">
-            {pending ? (
+            {pendingAddOrRemove ? (
               <Spinner
                 key={"spinner"}
                 {...motionProps}
@@ -91,22 +92,18 @@ const MoviePoster = (movie: MovieDetailsProps) => {
 
       <div
         onClick={() => {
-          if (isTMDBList) {
+          if (loadedList == "tmdb") {
             navigate(pagePaths.detailsTMDB.pathCustomParams(id.toString()));
           } else {
             navigate(pagePaths.details.pathCustomParams(id.toString()));
           }
         }}
-        className="justify-end flex flex-col relative h-full"
+        className="justify-between flex flex-col relative h-full"
       >
-        <motion.div
-          layout={"preserve-aspect"}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: showRateCircle ? 1 : 0 }}
-          className="relative h-full flex items-center justify-center"
-        >
-          <RateCircle vote_average={vote_average} />
-        </motion.div>
+        <RateCircle
+          showRateCircle={showRateCircle}
+          vote_average={vote_average}
+        />
 
         <div className="p-5">
           <motion.h3

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { useAuth } from "../../../context/Auth";
 import { pagePaths } from "../../../routes/paths";
 import { Input } from "../../components/Input";
-import { PageTransitionFade } from "../../components/PageTransitionWrapper";
+import { PageTransitionScale } from "../../components/PageTransitionWrapper";
 import { InOutWrapper } from "../components";
 
 interface FormData {
@@ -39,7 +39,7 @@ const LoginPage = () => {
   };
 
   return (
-    <PageTransitionFade className="w-full h-full items-center justify-center flex">
+    <PageTransitionScale className="w-full h-full items-center justify-center flex">
       <InOutWrapper
         forgotPassword={() => {
           navigate(pagePaths.forgotPass.path);
@@ -86,7 +86,7 @@ const LoginPage = () => {
           })}
         />
       </InOutWrapper>
-    </PageTransitionFade>
+    </PageTransitionScale>
   );
 };
 

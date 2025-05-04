@@ -11,4 +11,7 @@ export interface LibraryPageContextProps {
   listHeight: number;
   page: number;
   pendingSearch: boolean;
+  handleFormSubmit: any;
+  loadedList: "local" | "tmdb";
+  defaultGetMovies: () => void;
 }

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { pagePaths } from "../../../routes/paths";
 import { useTRPC } from "../../../trpc/utils";
 import { Input } from "../../components/Input";
-import { PageTransitionFade } from "../../components/PageTransitionWrapper";
+import { PageTransitionScale } from "../../components/PageTransitionWrapper";
 import { InOutWrapper } from "../components";
 
 interface FormData {
@@ -58,7 +58,7 @@ const ForgotPassPage = () => {
   };
 
   return (
-    <PageTransitionFade className="w-full h-full items-center justify-center flex">
+    <PageTransitionScale className="w-full h-full items-center justify-center flex">
       <InOutWrapper
         errorGoMessage="Fazer Login"
         error={error?.message}
@@ -125,7 +125,7 @@ const ForgotPassPage = () => {
           })}
         />
       </InOutWrapper>
-    </PageTransitionFade>
+    </PageTransitionScale>
   );
 };
 

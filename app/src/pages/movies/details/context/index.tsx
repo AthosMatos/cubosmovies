@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useLocation, useParams } from "react-router";
 import { useTRPC } from "../../../../trpc/utils.ts";
+import { useMovies } from "../../context/index.tsx";
 import { getMovie } from "../../funcs.ts";
 import { MovieDetailsProps } from "../interfaces.ts";
 
@@ -9,6 +10,8 @@ interface DetailsPageContextProps {
   movie: MovieDetailsProps | undefined;
   isTMDB: boolean;
   pending: boolean;
+  exists?: boolean;
+  toogleToLocalList: (movie?: MovieDetailsProps) => Promise<void>;
 }
 
 const DetailsPageContext = createContext({} as DetailsPageContextProps);
@@ -33,6 +36,7 @@ export const DetailsPageProvider = ({
     mutationFn: getMovie,
     onSuccess: (data) => {
       if (!data) return;
+
       setMovie(data);
     },
   });
@@ -45,6 +49,17 @@ export const DetailsPageProvider = ({
       },
     })
   );
+
+  const { mutateAsync: existsMovie, data: exists } = useMutation(
+    trpc.movies.exists.mutationOptions()
+  );
+  const { toogleToLocalList, pending } = useMovies({});
+
+  useEffect(() => {
+    existsMovie({
+      id: movie?.id,
+    });
+  }, [pending, movie]);
 
   useEffect(() => {
     if (isTMDB) {
@@ -60,6 +75,8 @@ export const DetailsPageProvider = ({
         movie,
         isTMDB,
         pending: pendingTMDB || pendingLocal,
+        exists: exists,
+        toogleToLocalList,
       }}
     >
       {children}

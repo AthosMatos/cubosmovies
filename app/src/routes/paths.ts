@@ -44,6 +44,15 @@ export const pagePaths = {
     pathCustomParams: (id: string) => `/details-tmdb/${id}`,
     element: lazy(() => import("../pages/movies/details")),
   },
+  movieCreator: {
+    path: "/editor",
+    element: lazy(() => import("../pages/movies/Editor")),
+  },
+  movieEditor: {
+    path: "/editor/:id",
+    pathCustomParams: (id: string) => `/editor/${id}`,
+    element: lazy(() => import("../pages/movies/Editor")),
+  },
 };
 
 export const safeRoutes = [

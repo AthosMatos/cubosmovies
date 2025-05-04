@@ -13,12 +13,12 @@ import {
 import { UsersService } from "./users.service";
 
 @Router({ alias: "users" })
+@UseMiddlewares(AuthMiddleware)
 export class UsersRouter {
   constructor(
     @Inject(UsersService) private readonly usersService: UsersService,
   ) {}
 
-  @UseMiddlewares(AuthMiddleware)
   @Query({ output: z.array(userSchema) })
   async getAll() {
     return this.usersService.getAll();

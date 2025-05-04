@@ -1,372 +1,194 @@
-import { useMutation } from "@tanstack/react-query";
-import { useEffect } from "react";
-import styled from "styled-components";
+import { useNavigate } from "react-router";
 import { useDimensionsHelperContext } from "../../../context/DimensionsHelperContext";
-import { useWindowDimensions } from "../../../hooks/useWindowSize";
-import { useTRPC } from "../../../trpc/utils";
+import { pagePaths } from "../../../routes/paths";
 import { Button } from "../../components/Button";
 import { PageTransitionSlide } from "../../components/PageTransitionWrapper";
-import { Background } from "../../suportPages/layout/background";
-import { useMoviesContext } from "../context";
-import RateCircle from "../library/components/poster/RateCircle";
+import { MoviePageLayout } from "../layouts";
+import RateCircle from "../library/poster/RateCircle";
 import { DetailsPageProvider, useDetailsPageContext } from "./context";
-import { MovieDetailsProps } from "./interfaces";
+import { formatToCurrency } from "./funcs";
 
-const DetailsWrapper = styled.div.attrs({
-  className:
-    "dark:bg-zinc-800/50 border dark:border-zinc-700 border-zinc-400 bg-zinc-50/50 p-4 flex flex-col gap-2 rounded-xl w-fit h-fit",
-})``;
-
-const DetailsCardWrapper = styled.div.attrs({
-  className:
-    "dark:bg-zinc-800/50 border dark:border-zinc-700 border-zinc-400 bg-zinc-50/50 lg:p-4 p-2 flex flex-col gap-2 rounded-xl w-full h-fit backdrop-blur-xs",
-})``;
-
-const formatToCurrency = (value?: number | null) => {
-  if (!value) return null;
-  //like this $135M and so
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "USD",
-    notation: "compact",
-  }).format(value);
-};
-
-const DetailsCard = ({
-  label,
-  value,
-}: {
-  label: string;
-  value?: string | null;
-}) => {
-  return (
-    <DetailsCardWrapper>
-      <p className="font-bold lg:text-base text-sm uppercase dark:text-white/60 text-black/60">
-        {label}
-      </p>
-      <p>{value}</p>
-    </DetailsCardWrapper>
-  );
-};
-
-const BaseDetailsPageWebLayout = ({ movie }: { movie: MovieDetailsProps }) => {
+const MovieDetailsPage = () => {
+  const { movie, isTMDB, exists, toogleToLocalList } = useDetailsPageContext();
   const { spaceBetweenHeaderAndFooter } = useDimensionsHelperContext();
-  const { isTMDB } = useDetailsPageContext();
-
-  const trpc = useTRPC();
-  const { mutateAsync: existsMovie, data: exists } = useMutation(
-    trpc.movies.existsByName.mutationOptions()
-  );
-  const { addToLocalList, pending } = useMoviesContext({});
-
-  useEffect(() => {
-    existsMovie(movie.title);
-  }, [pending]);
-
+  const navigate = useNavigate();
   return (
-    <div className="overflow-auto flex flex-col gap-3 h-fit">
-      <div className="flex flex-col gap-4 h-full w-full">
-        <title>{movie.title}</title>
-
-        <div className="flex gap-4 items-center justify-between">
-          <div className="text-black dark:text-white">
-            <h1 className="text-5xl font-semibold ">{movie.title}</h1>
-            <h2 className="font-light text-xl">{movie.original_title}</h2>
-          </div>
-          <div>
-            {isTMDB && (
-              <Button onClick={() => addToLocalList(movie)}>
-                {exists ? "Adicionar a minha lista" : "Remover da minha lista"}
-              </Button>
-            )}
-          </div>
-        </div>
-        <div
-          style={{
-            width: "-webkit-fill-available",
-            height: "-webkit-fill-available",
-          }}
-          className="flex lg:flex-row flex-col gap-4 text-black dark:text-white"
-        >
-          {movie.poster ? (
-            <img
-              style={{
-                objectFit: "cover",
-                height: `calc(${spaceBetweenHeaderAndFooter}px - 12rem)`, // 2rem for padding
+    <MoviePageLayout
+      buttons={
+        isTMDB ? (
+          <Button onClick={() => toogleToLocalList(movie)}>
+            {!exists ? "Adicionar a minha lista" : "Remover da minha lista"}
+          </Button>
+        ) : (
+          <div className="flex gap-2">
+            <Button secondary onClick={() => toogleToLocalList(movie)}>
+              {!exists ? "Adicionar a minha lista" : "Remover da minha lista"}
+            </Button>
+            <Button
+              onClick={() => {
+                movie?.id &&
+                  navigate(
+                    pagePaths.movieEditor.pathCustomParams(movie.id.toString())
+                  );
               }}
-              className="rounded-2xl"
-              src={movie.poster}
-              alt={movie.title}
-            />
-          ) : (
-            <div className="w-full rounded-2xl h-full flex items-center justify-center">
-              <p className="text-2xl font-bold text-zinc-800 dark:text-zinc-200">
-                Sem imagem disponível
-              </p>
-            </div>
-          )}
-          <div className="flex-[1] flex flex-col h-full justify-between">
-            <div className="flex flex-col gap-4 ">
-              <p className="italic">{movie.subtitle}</p>
-              <DetailsCardWrapper className="w-full ">
-                <p className="font-bold uppercase dark:text-white/80 text-black/60">
-                  Sinopse
-                </p>
-                <p>{movie.synopsis}</p>
-              </DetailsCardWrapper>
-            </div>
-            <DetailsCardWrapper className="w-full ">
-              <p className="font-bold dark:text-white/80 text-black/60">
-                Gêneros
-              </p>
-              <ul className="flex flex-wrap gap-2">
-                {movie.genre?.map((g) => (
-                  <li
-                    className="p-2 text-purple-50 dark:text-purple-200 px-3 uppercase font-bold text-sm border dark:border-purple-950 border-purple-700 bg-purple-600 dark:bg-purple-800/30 rounded-full"
-                    key={g.id}
-                  >
-                    {g.name}
-                  </li>
-                ))}
-              </ul>
-            </DetailsCardWrapper>
+            >
+              Editar
+            </Button>
           </div>
-          <DetailsWrapper className="flex-[1] flex h-full">
-            <div className="flex gap-4 items-center justify-between">
-              <DetailsCard
-                label="Popularidade"
-                value={movie.popularity.toString()}
-              />
-              <DetailsCard label="Votos" value={movie.vote_count.toString()} />
-              <div className="relative h-fit flex items-center justify-center">
-                <RateCircle
-                  vote_average={movie.vote_average}
-                  className="!w-28 !text-xl"
-                  textClassName="!text-2xl"
-                  porcentClassName="!text-base"
-                />
-              </div>
-            </div>
-            <div className="flex gap-4 items-center justify-between">
-              <DetailsCard
-                label="Data de Lançamento"
-                value={movie.release_date?.toLocaleDateString()}
-              />
-              <DetailsCard label="Duração" value={`${movie.duration} min`} />
-            </div>
-            <div className="flex gap-4 items-center justify-between">
-              <DetailsCard label="Situação" value={movie.situation} />
-              <DetailsCard label="Linguagem" value={movie.language} />
-            </div>
-            <div className="flex gap-4 items-center justify-between">
-              <DetailsCard
-                label="Orçamento"
-                value={formatToCurrency(movie.budget)}
-              />
-              <DetailsCard
-                label="Receita"
-                value={formatToCurrency(movie.revenue)}
-              />
-              <DetailsCard
-                label="Lucro"
-                value={formatToCurrency(movie.profit)}
-              />
-            </div>
-          </DetailsWrapper>
-        </div>
-      </div>
-      {movie.trailer && (
-        <div className="flex w-full items-center justify-center">
+        )
+      }
+      movie={{
+        title: (
+          <h1 className="lg:text-6xl text-3xl  font-semibold lg:text-start text-center">
+            {movie?.title}
+          </h1>
+        ),
+        original_title: (
+          <h2 className="font-light text-base lg:text-3xl lg:text-start text-center">
+            {movie?.original_title}
+          </h2>
+        ),
+        poster: movie?.poster ? (
+          <img
+            style={{
+              objectFit: "cover",
+              height: `calc(${spaceBetweenHeaderAndFooter}px - 14rem)`, // 2rem for padding
+            }}
+            className="rounded-2xl"
+            src={movie?.poster}
+            alt={movie?.title}
+          />
+        ) : (
+          <div
+            style={{
+              height: `calc(${spaceBetweenHeaderAndFooter}px - 14rem)`, // 2rem for padding
+            }}
+            className="aspect-[12/16] rounded-2xl flex items-center justify-center dark:bg-zinc-800/50 border dark:border-zinc-700 border-zinc-400 bg-zinc-50/50"
+          >
+            <p className="text-2xl font-bold text-zinc-800 dark:text-zinc-200">
+              Sem imagem disponível
+            </p>
+          </div>
+        ),
+        backdrop: movie?.backdrop,
+        subtitle: <p className="italic">{movie?.subtitle}</p>,
+        synopsis: <p>{movie?.synopsis}</p>,
+        genre: (
+          <ul className="flex flex-wrap gap-2">
+            {movie?.genre?.map((g) => (
+              <li
+                className="p-2 text-purple-50 dark:text-purple-200 px-3 uppercase font-bold text-sm border dark:border-purple-950 border-purple-700 bg-purple-600 dark:bg-purple-800/30 rounded-full"
+                key={g.id}
+              >
+                {g.name}
+              </li>
+            ))}
+          </ul>
+        ),
+        popularity: (
+          <>
+            <p className="font-bold lg:text-base text-sm uppercase dark:text-white/60 text-black/60">
+              {"Popularidade"}
+            </p>
+            <p>{movie?.popularity}</p>
+          </>
+        ),
+        vote_count: (
+          <>
+            <p className="font-bold lg:text-base text-sm uppercase dark:text-white/60 text-black/60">
+              {"Votos"}
+            </p>
+            <p>{movie?.vote_count}</p>
+          </>
+        ),
+        vote_average: (
+          <RateCircle
+            showRateCircle={true}
+            vote_average={movie?.vote_average || 0}
+            className="!w-28 !text-xl"
+            textClassName="!text-2xl"
+            porcentClassName="!text-base"
+          />
+        ),
+        release_date: (
+          <>
+            <p className="font-bold lg:text-base text-sm uppercase dark:text-white/60 text-black/60">
+              {"Data de Lançamento"}
+            </p>
+            <p>{movie?.release_date?.toLocaleDateString()}</p>
+          </>
+        ),
+        duration: (
+          <>
+            <p className="font-bold lg:text-base text-sm uppercase dark:text-white/60 text-black/60">
+              {"Duração"}
+            </p>
+            <p>{movie?.duration} min</p>
+          </>
+        ),
+        situation: (
+          <>
+            <p className="font-bold lg:text-base text-sm uppercase dark:text-white/60 text-black/60">
+              {"Situação"}
+            </p>
+            <p>{movie?.situation}</p>
+          </>
+        ),
+        language: (
+          <>
+            <p className="font-bold lg:text-base text-sm uppercase dark:text-white/60 text-black/60">
+              {"Linguagem"}
+            </p>
+            <p>{movie?.language}</p>
+          </>
+        ),
+        budget: (
+          <>
+            <p className="font-bold lg:text-base text-sm uppercase dark:text-white/60 text-black/60">
+              {"Orçamento"}
+            </p>
+            <p>{formatToCurrency(movie?.budget)}</p>
+          </>
+        ),
+        revenue: (
+          <>
+            <p className="font-bold lg:text-base text-sm uppercase dark:text-white/60 text-black/60">
+              {"Receita"}
+            </p>
+            <p>{formatToCurrency(movie?.revenue)}</p>
+          </>
+        ),
+        profit: (
+          <>
+            <p className="font-bold lg:text-base text-sm uppercase dark:text-white/60 text-black/60">
+              {"Lucro"}
+            </p>
+            <p>{formatToCurrency(movie?.profit)}</p>
+          </>
+        ),
+        trailer: movie?.trailer && (
           <iframe
-            className="rounded-2xl aspect-[16/9] h-[70vh]"
+            className="rounded-2xl aspect-[16/9] lg:h-[70vh] xl:w-auto w-full max-w-[96vw]"
             src={movie.trailer}
             title="YouTube video player"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           ></iframe>
-        </div>
-      )}
-    </div>
-  );
-};
-
-const BaseDetailsPageMobileLayout = ({
-  movie,
-}: {
-  movie: MovieDetailsProps;
-}) => {
-  const { spaceBetweenHeaderAndFooter } = useDimensionsHelperContext();
-  const { isTMDB } = useDetailsPageContext();
-  const { addToLocalList } = useMoviesContext({});
-  const trpc = useTRPC();
-  const { mutateAsync: existsMovie, data: exists } = useMutation(
-    trpc.movies.exists.mutationOptions()
-  );
-  useEffect(() => {
-    existsMovie(movie.id);
-  }, []);
-  return (
-    <div className="overflow-auto flex flex-col gap-4 h-full w-full">
-      <title>{movie.title}</title>
-
-      <div
-        style={{
-          width: "-webkit-fill-available",
-          height: "-webkit-fill-available",
-        }}
-        className="flex lg:flex-row flex-col gap-4 text-black dark:text-white"
-      >
-        {movie.poster ? (
-          <img
-            style={{
-              objectFit: "cover",
-              height: `calc(${spaceBetweenHeaderAndFooter}px - 12rem)`, // 2rem for padding
-            }}
-            className="rounded-2xl"
-            src={movie.poster}
-            alt={movie.title}
-          />
-        ) : (
-          <div className="w-full rounded-2xl h-full flex items-center justify-center">
-            <p className="text-2xl font-bold text-zinc-800 dark:text-zinc-200">
-              Sem imagem disponível
-            </p>
-          </div>
-        )}
-        <div className="flex w-full items-center justify-center">
-          {isTMDB && (
-            <Button onClick={() => addToLocalList(movie)}>
-              {exists ? "Adicionar a minha lista" : "Remover da minha lista"}
-            </Button>
-          )}
-        </div>
-
-        <div className="text-black dark:text-white flex items-center flex-col">
-          <h1 className="lg:text-5xl text-3xl font-semibold text-center">
-            {movie.title}
-          </h1>
-          <h2 className="font-light text-base lg:text-xl">
-            {movie.original_title}
-          </h2>
-        </div>
-        <div className="flex-[1] flex flex-col h-full justify-between gap-4">
-          <div className="flex flex-col gap-4 ">
-            <p className="italic">{movie.subtitle}</p>
-            <DetailsCardWrapper className="w-full ">
-              <p className="font-bold uppercase dark:text-white/80 text-black/60">
-                Sinopse
-              </p>
-              <p>{movie.synopsis}</p>
-            </DetailsCardWrapper>
-          </div>
-          <DetailsCardWrapper className="w-full ">
-            <p className="font-bold dark:text-white/80 text-black/60">
-              Gêneros
-            </p>
-            <ul className="flex flex-wrap gap-2">
-              {movie.genre?.map((g) => (
-                <li
-                  className="p-2 text-purple-50 dark:text-purple-200 px-3 uppercase font-bold text-sm border dark:border-purple-950 border-purple-700 bg-purple-600 dark:bg-purple-800/30 rounded-full"
-                  key={g.id}
-                >
-                  {g.name}
-                </li>
-              ))}
-            </ul>
-          </DetailsCardWrapper>
-        </div>
-        <div className="flex-[1] gap-2 flex-col flex h-full">
-          <div className="flex gap-2 items-center justify-between">
-            <DetailsCard
-              label="Popularidade"
-              value={movie.popularity.toString()}
-            />
-            <DetailsCard label="Votos" value={movie.vote_count.toString()} />
-            <div className="relative h-fit flex items-center justify-center">
-              <RateCircle
-                vote_average={movie.vote_average}
-                className="!w-28 !text-xl"
-                textClassName="!text-2xl"
-                porcentClassName="!text-base"
-              />
-            </div>
-          </div>
-          <div className="flex gap-2 items-center justify-between">
-            <DetailsCard
-              label="Data de Lançamento"
-              value={movie.release_date?.toLocaleDateString()}
-            />
-            <DetailsCard label="Duração" value={`${movie.duration} min`} />
-          </div>
-          <div className="flex gap-2 items-center justify-between">
-            <DetailsCard label="Situação" value={movie.situation} />
-            <DetailsCard label="Linguagem" value={movie.language} />
-          </div>
-          <div className="flex gap-2 items-center justify-between">
-            <DetailsCard
-              label="Orçamento"
-              value={formatToCurrency(movie.budget)}
-            />
-            <DetailsCard
-              label="Receita"
-              value={formatToCurrency(movie.revenue)}
-            />
-            <DetailsCard label="Lucro" value={formatToCurrency(movie.profit)} />
-          </div>
-        </div>
-        {movie.trailer && (
-          <div className="flex w-full items-center justify-center">
-            <iframe
-              className="rounded-2xl aspect-[16/9] w-full"
-              src={movie.trailer}
-              title="YouTube video player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export const BaseDetailsPageLayout = () => {
-  const {
-    dimensions: { width },
-  } = useWindowDimensions();
-  const isMobile = width < 768; // Adjust this value based on your design breakpoints
-  const { spaceBetweenHeaderAndFooter } = useDimensionsHelperContext();
-  const { movie } = useDetailsPageContext();
-
-  if (!movie) return null;
-
-  return (
-    <Background
-      image={movie.backdrop}
-      className="border border-black/30 dark:border-white/20 rounded-2xl w-full lg:p-4 p-2 lg:py-6 "
-      style={{
-        height: spaceBetweenHeaderAndFooter - 48,
+        ),
       }}
-    >
-      {isMobile ? (
-        <BaseDetailsPageMobileLayout movie={movie} />
-      ) : (
-        <BaseDetailsPageWebLayout movie={movie} />
-      )}
-    </Background>
+    />
   );
 };
 
-const MovieDetailsPage = () => {
+const ProviderWrapper = () => {
   return (
     <DetailsPageProvider>
       <PageTransitionSlide className="items-center justify-center flex w-full">
-        <BaseDetailsPageLayout />
+        <MovieDetailsPage />
       </PageTransitionSlide>
     </DetailsPageProvider>
   );
 };
 
-export default MovieDetailsPage;
+export default ProviderWrapper;

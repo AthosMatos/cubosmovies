@@ -35,4 +35,8 @@ export class GenresService {
     }
     return existingGenres;
   }
+
+  async getAll() {
+    return this.prismaService.movieGenres.findMany();
+  }
 }

@@ -7,6 +7,7 @@ interface DimensionsHelperContextType {
   headerHeight: number;
   footerHeight: number;
   spaceBetweenHeaderAndFooter: number;
+  screenHeight: number;
 }
 
 const DimensionsHelperContext = createContext<
@@ -52,7 +53,12 @@ export const DimensionsHelperProvider = ({
 
   return (
     <DimensionsHelperContext.Provider
-      value={{ headerHeight, footerHeight, spaceBetweenHeaderAndFooter }}
+      value={{
+        headerHeight,
+        footerHeight,
+        spaceBetweenHeaderAndFooter,
+        screenHeight: height,
+      }}
     >
       {children}
     </DimensionsHelperContext.Provider>

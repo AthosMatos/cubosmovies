@@ -1,17 +1,25 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { FaFilter, FaPlus } from "react-icons/fa";
+import { useNavigate } from "react-router";
 import { useWindowDimensions } from "../../../../../hooks/useWindowSize";
+import { pagePaths } from "../../../../../routes/paths";
+import { useTRPC } from "../../../../../trpc/utils";
 import { Button } from "../../../../components/Button";
 import { Input } from "../../../../components/Input";
 import { useLibraryPageContext } from "../../context";
 import { MovieSwitchButton } from "../../styled";
+import FilterModal from "./filterModal";
 
 const LibraryHeader = () => {
-  const { isTMDBList, setIsTMDBList, setSearch, pendingSearch } =
+  const { isTMDBList, setIsTMDBList, setSearch, pendingSearch, setPage } =
     useLibraryPageContext();
   const {
     dimensions: { width },
   } = useWindowDimensions();
-
+  const queryClient = useQueryClient();
+  const trpc = useTRPC();
+  const pageTotalKey = trpc.movies.getPageTotal.queryKey();
+  const navigate = useNavigate();
   return (
     <div
       id="libraryheader"
@@ -31,6 +39,8 @@ const LibraryHeader = () => {
           isSelected={!isTMDBList}
           onClick={() => {
             setIsTMDBList(false);
+            queryClient.invalidateQueries({ queryKey: pageTotalKey });
+            setPage(1);
           }}
         >
           Meus Filmes
@@ -45,12 +55,32 @@ const LibraryHeader = () => {
         </MovieSwitchButton>
       </div>
 
+      {/* Open the modal using document.getElementById('ID').showModal() method */}
+
       <div className="flex gap-2">
-        <Button secondary>{width > 768 ? "Filtros" : <FaFilter />}</Button>
-        <Button className="w-max">
+        <Button
+          className="w-max"
+          onClick={() => {
+            const modal = document.getElementById(
+              "my_modal_2"
+            ) as HTMLDialogElement;
+            if (modal) {
+              modal.showModal();
+            }
+          }}
+        >
+          {width > 768 ? " Filtros" : <FaFilter />}
+        </Button>
+        <Button
+          onClick={() => {
+            navigate(pagePaths.movieCreator.path);
+          }}
+          secondary
+        >
           {width > 768 ? "Adicionar Filmes" : <FaPlus />}
         </Button>
       </div>
+      <FilterModal />
     </div>
   );
 };

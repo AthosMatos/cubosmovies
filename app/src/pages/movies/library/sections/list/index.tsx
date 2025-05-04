@@ -1,6 +1,6 @@
 import { Spinner } from "../../../../suportPages/loading";
-import MoviePoster from "../../components/poster";
 import { useLibraryPageContext } from "../../context";
+import MoviePoster from "../../poster";
 
 const LibraryPageList = () => {
   const { movies, pending, listHeight } = useLibraryPageContext();
@@ -14,7 +14,7 @@ const LibraryPageList = () => {
     >
       {pending ? (
         <Spinner className="w-16 h-16 text-purple-500" />
-      ) : !movies.length ? (
+      ) : movies.length === 0 ? (
         <div>
           <h1 className="text-2xl font-bold text-zinc-800 dark:text-zinc-200">
             Nenhum filme encontrado
