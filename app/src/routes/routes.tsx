@@ -8,6 +8,7 @@ import {
   useNavigate,
 } from "react-router";
 
+import backgroundImage from "../../src/assets/BACKGROUND-krists-luhaers-543526-unsplash.png";
 import { useAuth } from "../context/Auth";
 import { useTheme } from "../context/Theme";
 import Layout from "../pages/suportPages/layout";
@@ -55,7 +56,7 @@ const AnimatedRoutes = () => {
   return (
     <>
       {!isNotFoundPage && <Header />}
-      <Background>
+      <Background image={backgroundImage}>
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
             <Route path={pagePaths.home.path} element={<Layout />}>

@@ -23,4 +23,7 @@ export interface MovieDetailsProps {
   poster: string | null;
   backdrop: string | null;
   trailer: string | null;
+
+  posterFile?: File | null; // For file upload
+  backdropFile?: File | null; // For file upload
 }

@@ -5,7 +5,7 @@ import { MovieDetailsProps } from "../details/interfaces.ts";
 export const useMovies = ({ onDelete }: { onDelete?: () => void }) => {
   const trpc = useTRPC();
 
-  const { mutate: createMovie, isPending: pendingCreate } = useMutation(
+  const { mutateAsync: createMovie, isPending: pendingCreate } = useMutation(
     trpc.movies.create.mutationOptions({})
   );
   const { mutateAsync: deleteMovie, isPending: pendingDelete } = useMutation(
@@ -30,8 +30,8 @@ export const useMovies = ({ onDelete }: { onDelete?: () => void }) => {
       id: movie.id,
       name: movie.title,
     });
-    if (existingMovie) {
-      await deleteMovie(movie.id);
+    if (existingMovie.body.exists) {
+      await deleteMovie(existingMovie.body.id as number);
       if (onDelete) onDelete();
       return;
     }
@@ -50,7 +50,7 @@ export const useMovies = ({ onDelete }: { onDelete?: () => void }) => {
       create: genresToCreate,
     };
 
-    createMovie({
+    const createdmovie = await createMovie({
       id: movie.id,
       backdrop: movie?.backdrop || "",
       genre: genre,
@@ -73,6 +73,7 @@ export const useMovies = ({ onDelete }: { onDelete?: () => void }) => {
       vote_average: movie?.vote_average || 0,
       vote_count: movie?.vote_count || 0,
     });
+    return createdmovie.body.id as number;
   };
 
   return {

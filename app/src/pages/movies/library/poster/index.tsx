@@ -34,19 +34,25 @@ const MoviePoster = (movie: MovieDetailsProps) => {
   const { loadedList } = useLibraryPageContext();
   const trpc = useTRPC();
   const { mutateAsync: existsByName, data: isInLibrary } = useMutation(
-    trpc.movies.existsByName.mutationOptions()
+    trpc.movies.exists.mutationOptions()
   );
 
   const navigate = useNavigate();
   const { toogleToLocalList: addToLocalList, pending: pendingAddOrRemove } =
     useMovies({
       onDelete: () => {
-        existsByName(movie.title);
+        existsByName({
+          id,
+          name: title,
+        });
       },
     });
 
   useEffect(() => {
-    existsByName(movie.title);
+    existsByName({
+      id,
+      name: title,
+    });
   }, [pendingAddOrRemove]);
 
   return (

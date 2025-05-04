@@ -10,12 +10,14 @@ export const Spinner = ({
   exit,
   initial,
   transition,
+  faster,
 }: {
   className?: string;
   initial?: any;
   animate?: any;
   exit?: any;
   transition?: any;
+  faster?: boolean;
 }) => {
   return (
     <motion.div
@@ -27,7 +29,7 @@ export const Spinner = ({
       <Spin
         animate={{ rotate: 360 }}
         transition={{
-          ease: "anticipate",
+          ease: faster ? "linear" : "anticipate",
           duration: 1,
           repeat: Infinity,
           repeatType: "loop",

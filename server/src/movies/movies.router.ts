@@ -8,7 +8,6 @@ import { z } from "zod";
 import {
   ExistsMovieSchema,
   GetAllMoviesSchema,
-  GetMovieByNameSchema,
   GetMovieSchema,
   MoviesCreateInputSchema,
   MoviesSchema,
@@ -36,12 +35,17 @@ export class MoviesRouter {
     return this.moviesService.get(id);
   }
 
-  @Mutation({ input: GetMovieByNameSchema, output: z.boolean() })
-  async existsByName(@Input() name: z.infer<typeof GetMovieByNameSchema>) {
-    return this.moviesService.existsByName(name);
+  @Mutation({ input: z.number(), output: ResponseSchema })
+  async getMoviePoster(@Input() id: number) {
+    return this.moviesService.getMoviePoster(id);
   }
 
-  @Mutation({ input: ExistsMovieSchema, output: z.boolean() })
+  @Mutation({ input: z.number(), output: ResponseSchema })
+  async getMovieBackdrop(@Input() id: number) {
+    return this.moviesService.getMovieBackdrop(id);
+  }
+
+  @Mutation({ input: ExistsMovieSchema, output: ResponseSchema })
   async exists(@Input() input: z.infer<typeof ExistsMovieSchema>) {
     return this.moviesService.exists(input);
   }

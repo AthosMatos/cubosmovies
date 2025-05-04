@@ -32,6 +32,7 @@ export const MoviesSchema = z.object({
 export const ResponseSchema = z.object({
   status: z.number(),
   message: z.string(),
+  body: z.any(),
 });
 
 export const MoviesCreateInputSchema = z.object({

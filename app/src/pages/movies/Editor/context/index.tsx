@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { createContext, useContext, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import {
   useFieldArray,
   UseFieldArrayReturn,
@@ -8,20 +8,23 @@ import {
   UseFormSetValue,
 } from "react-hook-form";
 import { useParams } from "react-router";
+import { useAuth } from "../../../../context/Auth/index.tsx";
 import { useTRPC } from "../../../../trpc/utils.ts";
 import { useMovies } from "../../context/index.tsx";
+import { PostBackdrop, PostPoster } from "../axios.ts";
 import { MovieDetailsProps } from "../interfaces.ts";
 
 interface MovieEditorPageContextProps {
   exists?: boolean;
-  isPending: boolean;
+  pendingCreate: boolean;
+  pendingUpdate: boolean;
   submit: (e?: React.BaseSyntheticEvent) => Promise<void>;
   fieldArray: UseFieldArrayReturn<MovieDetailsProps, "genre", "id">;
   movie: MovieDetailsProps;
   register: UseFormRegister<MovieDetailsProps>;
   setValue: UseFormSetValue<MovieDetailsProps>;
   id?: string;
-  toogleToLocalList: (movie?: MovieDetailsProps) => Promise<void>;
+  toogleToLocalList: (movie?: MovieDetailsProps) => Promise<number | undefined>;
   updateMovie?: () => Promise<void>;
 }
 
@@ -33,9 +36,10 @@ export const MovieEditorPageProvider = ({
   children: React.ReactNode;
 }) => {
   const { id } = useParams();
+  const [createdId, setCreatedId] = useState<string | undefined>(undefined);
   const trpc = useTRPC();
   const { toogleToLocalList, pending: pendCreate } = useMovies({});
-
+  const { token } = useAuth();
   const { register, handleSubmit, watch, control, setValue } =
     useForm<MovieDetailsProps>({
       mode: "onChange",
@@ -76,16 +80,19 @@ export const MovieEditorPageProvider = ({
       connect: genresToConnect,
       create: genresToCreate,
     };
+
+    movie.posterFile && (await PostPoster(movie.posterFile, token));
+    movie.backdropFile && (await PostBackdrop(movie.backdropFile, token));
+
     updateMovie({
       id: parseInt(id!),
       data: {
-        backdrop: movie?.backdrop || "",
         genre: genre,
         budget: movie?.budget || 0,
         duration: movie?.duration || 0,
         language: movie?.language || "",
         original_title: movie?.original_title || "",
-        poster: movie?.poster || "",
+
         profit: movie?.profit || 0,
         revenue: movie?.revenue || 0,
         release_date: movie?.release_date
@@ -102,12 +109,23 @@ export const MovieEditorPageProvider = ({
       },
     });
   };
+  const create = async () => {
+    const newMovieObj = { ...movie };
+    newMovieObj.poster = null;
+    newMovieObj.backdrop = null;
+    movie.posterFile && (await PostPoster(movie.posterFile, token));
+    movie.backdropFile && (await PostBackdrop(movie.backdropFile, token));
 
+    const movieId = await toogleToLocalList(newMovieObj);
+    if (movieId) {
+      setCreatedId(movieId.toString());
+    }
+  };
   const submitMovie = async () => {
     if (id) {
       update();
     } else {
-      toogleToLocalList(movie);
+      create();
     }
   };
   const submit = handleSubmit(submitMovie);
@@ -115,12 +133,12 @@ export const MovieEditorPageProvider = ({
   const isPending = pendUpdate || pendCreate;
 
   useEffect(() => {
-    const checkedid = parseInt(id!);
+    const checkedid = createdId ? parseInt(createdId) : parseInt(id!);
     existsMovie({
       id: isNaN(checkedid) ? undefined : checkedid,
       name: movie.title,
     });
-  }, [isPending]);
+  }, [isPending, createdId]);
 
   useEffect(() => {
     if (id) {
@@ -154,8 +172,9 @@ export const MovieEditorPageProvider = ({
   return (
     <MovieEditorPageContext.Provider
       value={{
-        exists,
-        isPending,
+        exists: exists?.body.exists,
+        pendingCreate: pendCreate,
+        pendingUpdate: pendUpdate,
         submit,
         fieldArray,
         movie,

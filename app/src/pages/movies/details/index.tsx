@@ -1,8 +1,10 @@
+import { Img } from "react-image";
 import { useNavigate } from "react-router";
 import { useDimensionsHelperContext } from "../../../context/DimensionsHelperContext";
 import { pagePaths } from "../../../routes/paths";
 import { Button } from "../../components/Button";
 import { PageTransitionSlide } from "../../components/PageTransitionWrapper";
+import { Spinner } from "../../suportPages/loading";
 import { MoviePageLayout } from "../layouts";
 import RateCircle from "../library/poster/RateCircle";
 import { DetailsPageProvider, useDetailsPageContext } from "./context";
@@ -49,12 +51,22 @@ const MovieDetailsPage = () => {
           </h2>
         ),
         poster: movie?.poster ? (
-          <img
+          <Img
+            loader={
+              <div
+                style={{
+                  height: `calc(${spaceBetweenHeaderAndFooter}px - 14rem)`,
+                }}
+                className="aspect-[12/16] rounded-2xl flex cursor-pointer items-center justify-center dark:bg-zinc-800/50 border dark:border-zinc-700 border-zinc-400 bg-zinc-50/50"
+              >
+                <Spinner />
+              </div>
+            }
             style={{
               objectFit: "cover",
-              height: `calc(${spaceBetweenHeaderAndFooter}px - 14rem)`, // 2rem for padding
+              height: `calc(${spaceBetweenHeaderAndFooter}px - 14rem)`,
             }}
-            className="rounded-2xl"
+            className="rounded-2xl aspect-[12/16]"
             src={movie?.poster}
             alt={movie?.title}
           />

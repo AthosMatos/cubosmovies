@@ -1,50 +1,49 @@
 import {
   Controller,
   FileTypeValidator,
+  Param,
   ParseFilePipe,
   Post,
-  UploadedFiles,
-  UseGuards,
+  UploadedFile,
   UseInterceptors,
 } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { FilesInterceptor } from "@nestjs/platform-express";
-import { diskStorage } from "multer";
+import { FileInterceptor } from "@nestjs/platform-express";
+
+import { UseMiddlewares } from "nestjs-trpc";
+import { AuthMiddleware } from "src/auth/auth.middleware";
+import { MoviesService } from "./movies.service";
 
 @Controller("movies")
 export class MoviesController {
-  constructor(private readonly configService: ConfigService) {}
+  constructor(private readonly moviesService: MoviesService) {}
 
-  @Post(":movieId/image")
-  @UseGuards()
-  @UseInterceptors(
-    FilesInterceptor("image", 20, {
-      storage: diskStorage({
-        destination: `./public/images/movies`,
-        filename: (req, file, cb) => {
-          const filename = `${req.params.movieId}-${file.originalname}`;
-
-          cb(null, filename);
-        },
-      }),
-    }),
-  )
-  uploadImage(
-    @UploadedFiles(
+  @Post(":movieId/poster")
+  @UseMiddlewares(AuthMiddleware)
+  @UseInterceptors(FileInterceptor("poster"))
+  uploadPoster(
+    @UploadedFile(
       new ParseFilePipe({
-        validators: [
-          //new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }), // 5MB
-          new FileTypeValidator({ fileType: "image" }), // ['image/jpeg', 'image/png'
-        ],
+        validators: [new FileTypeValidator({ fileType: "image" })],
       }),
-    ) //_file: Express.Multer.File,
-    files: Express.Multer.File[],
+    )
+    file: Express.Multer.File,
+    @Param("movieId") movieId: string,
   ) {
-    const createdFilenames = files.map(
-      (file) =>
-        `http://${this.configService.getOrThrow("BASE_URL")}:${this.configService.getOrThrow("PORT")}/images/movies/${file.filename}`,
-    );
+    return this.moviesService.uploadPoster(parseInt(movieId), file.buffer);
+  }
 
-    return { filenames: createdFilenames };
+  @Post(":movieId/backdrop")
+  @UseMiddlewares(AuthMiddleware)
+  @UseInterceptors(FileInterceptor("backdrop"))
+  uploadBackdrop(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new FileTypeValidator({ fileType: "image" })],
+      }),
+    )
+    file: Express.Multer.File,
+    @Param("movieId") movieId: string,
+  ) {
+    return this.moviesService.uploadBackdrop(parseInt(movieId), file.buffer);
   }
 }

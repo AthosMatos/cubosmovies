@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import backgroundImage from "../../../assets/BACKGROUND-krists-luhaers-543526-unsplash.png";
 
 export const Background = styled.div.attrs({
   className:
@@ -13,7 +12,7 @@ export const Background = styled.div.attrs({
       rgba(216, 152, 202, 0.8) 68%,
       rgba(255, 255, 255, 0.7) 100%
     ),
-    url(${({ image }) => image || backgroundImage});
+    url(${({ image }) => image});
 
   .dark & {
     background: linear-gradient(
@@ -22,7 +21,7 @@ export const Background = styled.div.attrs({
         rgba(39, 17, 34, 0.705) 68%,
         rgba(0, 0, 0, 0.2) 100%
       ),
-      url(${({ image }) => image || backgroundImage});
+      url(${({ image }) => image});
 
     background-position: center;
     background-repeat: no-repeat;

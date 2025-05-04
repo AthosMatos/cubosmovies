@@ -2,14 +2,24 @@ import { Button } from "../../components/Button";
 import { PageTransitionSlide } from "../../components/PageTransitionWrapper";
 import { MoviePageLayout } from "../layouts";
 import RateCircle from "../library/poster/RateCircle";
+import { BackDropButton } from "./components/backdrop";
 import { Genre } from "./components/genre";
 import { EditorInput } from "./components/Input";
 import { Poster } from "./components/poster";
 import { MovieEditorPageProvider, useMovieEditorPageContext } from "./context";
 
 const MEP = () => {
-  const { submit, exists, movie, id, toogleToLocalList, updateMovie } =
-    useMovieEditorPageContext();
+  const {
+    submit,
+    exists,
+    movie,
+    id,
+    toogleToLocalList,
+    updateMovie,
+    pendingCreate,
+    pendingUpdate,
+    setValue,
+  } = useMovieEditorPageContext();
 
   return (
     <PageTransitionSlide className="items-center justify-center flex w-full">
@@ -19,20 +29,35 @@ const MEP = () => {
             id ? (
               <div className="flex gap-2">
                 {exists && (
-                  <Button onClick={updateMovie} type="button" secondary>
-                    {"Salvar"}
+                  <Button
+                    loading={pendingUpdate}
+                    onClick={updateMovie}
+                    type="button"
+                    secondary
+                  >
+                    Salvar
                   </Button>
                 )}
-                <Button onClick={() => toogleToLocalList(movie)} type="button">
+                <Button
+                  loading={pendingCreate}
+                  onClick={() => toogleToLocalList(movie)}
+                  type="button"
+                >
                   {!exists
                     ? "Adicionar a minha lista"
                     : "Remover da minha lista"}
                 </Button>
+                <BackDropButton />
               </div>
             ) : (
-              <Button>
-                {!exists ? "Adicionar a minha lista" : "Remover da minha lista"}
-              </Button>
+              <div className="flex gap-2">
+                <Button loading={pendingCreate}>
+                  {!exists
+                    ? "Adicionar a minha lista"
+                    : "Remover da minha lista"}
+                </Button>
+                <BackDropButton />
+              </div>
             )
           }
           movie={{
@@ -74,7 +99,7 @@ const MEP = () => {
             popularity: (
               <EditorInput
                 className="w-full"
-                type="text"
+                type="number"
                 placeholder="Popularidade"
                 name="popularity"
               />
@@ -82,7 +107,7 @@ const MEP = () => {
             vote_count: (
               <EditorInput
                 className="w-full"
-                type="text"
+                type="number"
                 placeholder="Votos"
                 name="vote_count"
               />
@@ -99,7 +124,7 @@ const MEP = () => {
             release_date: (
               <EditorInput
                 className="w-full"
-                type="text"
+                type="date"
                 placeholder="Data de Lançamento"
                 name="release_date"
               />

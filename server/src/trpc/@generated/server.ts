@@ -135,11 +135,24 @@ const appRouter = t.router({
         )
         .optional(),
     })).mutation(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
-    existsByName: publicProcedure.input(z.string()).output(z.boolean()).mutation(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
+    getMoviePoster: publicProcedure.input(z.number()).output(z.object({
+      status: z.number(),
+      message: z.string(),
+      body: z.any(),
+    })).mutation(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
+    getMovieBackdrop: publicProcedure.input(z.number()).output(z.object({
+      status: z.number(),
+      message: z.string(),
+      body: z.any(),
+    })).mutation(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
     exists: publicProcedure.input(z.object({
       id: z.number().optional(),
       name: z.string().optional(),
-    })).output(z.boolean()).mutation(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
+    })).output(z.object({
+      status: z.number(),
+      message: z.string(),
+      body: z.any(),
+    })).mutation(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
     getPageTotal: publicProcedure.output(z.number()).query(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
     search: publicProcedure.input(z.string()).output(z.array(z.object({
       id: z.number(),
@@ -172,6 +185,7 @@ const appRouter = t.router({
     delete: publicProcedure.input(z.number()).output(z.object({
       status: z.number(),
       message: z.string(),
+      body: z.any(),
     })).mutation(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
     create: publicProcedure.input(z.object({
       id: z.number().optional(),
@@ -207,6 +221,7 @@ const appRouter = t.router({
     })).output(z.object({
       status: z.number(),
       message: z.string(),
+      body: z.any(),
     })).mutation(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
     update: publicProcedure.input(z.object({
       id: z.number(),
@@ -246,6 +261,7 @@ const appRouter = t.router({
     })).output(z.object({
       status: z.number(),
       message: z.string(),
+      body: z.any(),
     })).mutation(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any)
   }),
   auth: t.router({
